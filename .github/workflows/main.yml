@@ -33,15 +33,15 @@ jobs:
         run: |
           cd "C:\Program Files (x86)\DOSBox-0.74-3"
           $Env:SDL_VIDEODRIVER = 'dummy'
-          .\DOSBox.exe -c "mount C ${{ github.workspace }}" -c "C:" -c "cd SRC\CRTINDEX" -c "build.bat" -c "EXIT" -noconsole -noautoexec | Out-Null
-          type D:\a\Top2000-MSDOS\Top2000-MSDOS\SRC\CRTINDEX\OBJ\OUTPUT.TXT
+          .\DOSBox.exe -c "mount C ${{github.workspace}}" -c "C:" -c "cd SRC\CRTINDEX" -c "build.bat" -c "EXIT" -noconsole -noautoexec | Out-Null
+          type ${{github.workspace}}\SRC\CRTINDEX\OBJ\OUTPUT.TXT
           
       - name: Compile TOP2000.EXE
         run: |
           cd "C:\Program Files (x86)\DOSBox-0.74-3"
           $Env:SDL_VIDEODRIVER = 'dummy'
           .\DOSBox.exe -c "mount C ${{ github.workspace }}" -c "C:" -c "cd SRC\TOP2000" -c "build.bat" -c "EXIT" -noconsole -noautoexec | Out-Null
-          type D:\a\Top2000-MSDOS\Top2000-MSDOS\SRC\TOP2000\OBJ\OUTPUT.TXT
+          type ${{github.workspace}}\SRC\TOP2000\OBJ\OUTPUT.TXT
       
       - name: Create TOP2000.DAT
         if: ${{ false }}
@@ -49,7 +49,7 @@ jobs:
           cd "C:\Program Files (x86)\DOSBox-0.74-3"
           $Env:SDL_VIDEODRIVER = 'dummy'
           .\DOSBox.exe -c "mount C ${{ github.workspace }}" -c "C:" -c "cd SRC\DB" -c "build.bat" -c "EXIT" -noconsole -noautoexec | Out-Null
-          type D:\a\Top2000-MSDOS\Top2000-MSDOS\SRC\DB\OUTPUT.TXT
+          type ${{github.workspace}}\SRC\DB\OUTPUT.TXT
 
       - name: Create TOP2000 DOS Site
         run: |
@@ -70,11 +70,11 @@ jobs:
           cd "C:\Program Files (x86)\DOSBox-0.74-3"
           $Env:SDL_VIDEODRIVER = 'dummy'
           .\DOSBox.exe -c "mount C ${{ github.workspace }}" -c "C:" -c "C:\VBDOS\COMPRESS.EXE -r C:\SRC\TOP2000\BIN\TOP2000.EXE C:\PUBLISH\DISK > OUTPUT.TXT" -c "EXIT" -noconsole -noautoexec | Out-Null
-          type D:\a\Top2000-MSDOS\Top2000-MSDOS\OUTPUT.TXT
+          type ${{github.workspace}}\OUTPUT.TXT
            .\DOSBox.exe -c "mount C ${{ github.workspace }}" -c "C:" -c "C:\VBDOS\COMPRESS.EXE -r C:\SRC\TOP2000\TOP2000.ICO C:\PUBLISH\DISK > OUTPUT.TXT" -c "EXIT" -noconsole -noautoexec | Out-Null
-          type D:\a\Top2000-MSDOS\Top2000-MSDOS\OUTPUT.TXT
+          type ${{github.workspace}}\OUTPUT.TXT
          #   .\DOSBox.exe -c "mount C ${{ github.workspace }}" -c "C:" -c "C:\VBDOS\COMPRESS.EXE -r C:\SRC\DB\BIN\TOP2000.DAT C:\PUBLISH\DISK > OUTPUT.TXT" -c "EXIT" -noconsole -noautoexec | Out-Null
-         # type D:\a\Top2000-MSDOS\Top2000-MSDOS\OUTPUT.TXT
+         # type ${{github.workspace}}\OUTPUT.TXT
 
       - name: Create Raw artifact
         run: |
