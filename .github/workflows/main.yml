@@ -1,0 +1,119 @@
+name: Build TOP2000 for MS-DOS
+on: push
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v3
+
+      - name: Setup .NET Core SDK
+        if: ${{ false }}
+        uses: actions/setup-dotnet@v3.0.3
+        
+      - name: Download TOP2000 database
+        run: | 
+          cd SRC\DOWNLOAD
+          dotnet run .\DownloaderApp.csproj
+
+      - name: Install dosbox
+        run: choco install dosbox
+          
+      - name: Compile CRTINDEX.EXE
+        run: |
+          cd "C:\Program Files (x86)\DOSBox-0.74-3"
+          $Env:SDL_VIDEODRIVER = 'dummy'
+          .\DOSBox.exe -c "mount C ${{ github.workspace }}" -c "C:" -c "cd SRC\CRTINDEX" -c "build.bat" -c "EXIT" -noconsole -noautoexec | Out-Null
+          type D:\a\Top2000-MSDOS\Top2000-MSDOS\SRC\CRTINDEX\OBJ\OUTPUT.TXT
+          
+      - name: Compile TOP2000.EXE
+        run: |
+          cd "C:\Program Files (x86)\DOSBox-0.74-3"
+          $Env:SDL_VIDEODRIVER = 'dummy'
+          .\DOSBox.exe -c "mount C ${{ github.workspace }}" -c "C:" -c "cd SRC\TOP2000" -c "build.bat" -c "EXIT" -noconsole -noautoexec | Out-Null
+          type D:\a\Top2000-MSDOS\Top2000-MSDOS\SRC\TOP2000\OBJ\OUTPUT.TXT
+      
+      - name: Create TOP2000.DAT
+        if: ${{ false }}
+        run: |
+          cd "C:\Program Files (x86)\DOSBox-0.74-3"
+          $Env:SDL_VIDEODRIVER = 'dummy'
+          .\DOSBox.exe -c "mount C ${{ github.workspace }}" -c "C:" -c "cd SRC\DB" -c "build.bat" -c "EXIT" -noconsole -noautoexec | Out-Null
+          type D:\a\Top2000-MSDOS\Top2000-MSDOS\SRC\DB\OUTPUT.TXT
+
+      - name: Create TOP2000 DOS Site
+        run: |
+          cd "SRC\WEB"
+          .\build.ps1
+
+      - name: Create App artifact
+        run: |
+          cd ${{ github.workspace }}\Publish\App
+          copy "C:\Program Files (x86)\DOSBox-0.74-3\DOSBox.exe" DOSBox.exe
+          copy "C:\Program Files (x86)\DOSBox-0.74-3\SDL_net.dll" SDL_net.dll
+          copy "C:\Program Files (x86)\DOSBox-0.74-3\SDL.dll" SDL.dll
+          copy ${{ github.workspace }}\SRC\TOP2000\BIN\TOP2000.EXE TOP2000.EXE
+        # copy ${{ github.workspace }}\SRC\DB\BIN\TOP2000.DAT TOP2000.DAT
+
+      - name: Compress
+        run: |
+          cd "C:\Program Files (x86)\DOSBox-0.74-3"
+          $Env:SDL_VIDEODRIVER = 'dummy'
+          .\DOSBox.exe -c "mount C ${{ github.workspace }}" -c "C:" -c "C:\VBDOS\COMPRESS.EXE -r C:\SRC\TOP2000\BIN\TOP2000.EXE C:\PUBLISH\DISK > OUTPUT.TXT" -c "EXIT" -noconsole -noautoexec | Out-Null
+          type D:\a\Top2000-MSDOS\Top2000-MSDOS\OUTPUT.TXT
+           .\DOSBox.exe -c "mount C ${{ github.workspace }}" -c "C:" -c "C:\VBDOS\COMPRESS.EXE -r C:\SRC\TOP2000\TOP2000.ICO C:\PUBLISH\DISK > OUTPUT.TXT" -c "EXIT" -noconsole -noautoexec | Out-Null
+          type D:\a\Top2000-MSDOS\Top2000-MSDOS\OUTPUT.TXT
+         #   .\DOSBox.exe -c "mount C ${{ github.workspace }}" -c "C:" -c "C:\VBDOS\COMPRESS.EXE -r C:\SRC\DB\BIN\TOP2000.DAT C:\PUBLISH\DISK > OUTPUT.TXT" -c "EXIT" -noconsole -noautoexec | Out-Null
+         # type D:\a\Top2000-MSDOS\Top2000-MSDOS\OUTPUT.TXT
+
+      - name: Create Raw artifact
+        run: |
+          cd ${{ github.workspace }}\Publish\
+          mkdir RAW
+          cd RAW
+          copy ${{ github.workspace }}\SRC\TOP2000\BIN\TOP2000.EXE TOP2000.EXE
+          copy ${{ github.workspace }}\SRC\TOP2000\TOP2000.ICO TOP2000.ICO
+      #    copy ${{ github.workspace }}\SRC\DB\BIN\TOP2000.DAT TOP2000.DAT
+
+      - name: Compress artifacts for site deploy
+        run: |
+          mkdir ${{github.workspace}}\SRC\WEB\BIN\releases
+          Compress-Archive -Path ${{github.workspace}}\Publish\APP\* -DestinationPath ${{github.workspace}}\SRC\WEB\BIN\releases\top2000-dosbox.zip
+          Compress-Archive -Path ${{github.workspace}}\Publish\DISK\* -DestinationPath ${{github.workspace}}\SRC\WEB\BIN\releases\top2000-disk.zip
+          Compress-Archive -Path ${{github.workspace}}\Publish\RAW\* -DestinationPath ${{github.workspace}}\SRC\WEB\BIN\releases\top2000.zip
+        # Compress-Archive -Path ${{github.workspace}}\SRC\WEB\BIN\* -DestinationPath ${{github.workspace}}\site.gzip
+
+      - name: copy site
+        run: |
+          mkdir ${{github.workspace}}\_site
+          xcopy ${{github.workspace}}\SRC\WEB\BIN\*.* ${{ github.workspace }}\_site\ /S
+
+      - name: Publish App disk artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: Code
+          path: Publish
+
+      - name: Archive TOP2000 DOS Site
+        uses: actions/upload-pages-artifact@v1
+
+  deploy:
+      environment:
+        name: github-pages
+        url: ${{ steps.deployment.outputs.page_url }}
+      runs-on: ubuntu-latest
+      needs: build
+      steps:
+        - name: Deploy to GitHub Pages
+          id: deployment
+          uses: actions/deploy-pages@v1
