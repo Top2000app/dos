@@ -1,7 +1,7 @@
 # Top2000 App voor MS-DOS
-![Hoofdscherm](SRC/WEB/IMG/main.jpg)
-
 [![Build TOP2000 for MS-DOS](https://github.com/Top2000app/dos/actions/workflows/main.yml/badge.svg)](https://github.com/Top2000app/dos/actions/workflows/main.yml)
+
+![Hoofdscherm](SRC/WEB/IMG/main.jpg)
 
 De Top2000 app is er nu ook voor MS-DOS. Waarom? Omdat het kan en we zaten door het coronavirus toch in lockdown. Alle edities tot en met 2019 zijn te bewonderen in deze mooie DOS app.
 
