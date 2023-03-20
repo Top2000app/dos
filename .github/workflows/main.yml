@@ -18,10 +18,9 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Setup .NET Core SDK
-        if: ${{ false }}
         uses: actions/setup-dotnet@v3.0.3
+
       - name: Download TOP2000 database
-        if: ${{ false }}
         run: | 
           cd SRC\DOWNLOAD
           dotnet run .\DownloaderApp.csproj
@@ -60,7 +59,7 @@ jobs:
         run: |
           cd ${{ github.workspace }}\Publish\jsdos
           copy ${{ github.workspace }}\SRC\TOP2000\BIN\TOP2000.EXE TOP2000.EXE
-        # copy ${{ github.workspace }}\SRC\DB\BIN\TOP2000.DAT TOP2000.DAT
+          copy ${{ github.workspace }}\SRC\DB\BIN\TOP2000.DAT TOP2000.DAT
 
       - name: Create App artifact
         run: |
@@ -69,7 +68,7 @@ jobs:
           copy "C:\Program Files (x86)\DOSBox-0.74-3\SDL_net.dll" SDL_net.dll
           copy "C:\Program Files (x86)\DOSBox-0.74-3\SDL.dll" SDL.dll
           copy ${{ github.workspace }}\SRC\TOP2000\BIN\TOP2000.EXE TOP2000.EXE
-        # copy ${{ github.workspace }}\SRC\DB\BIN\TOP2000.DAT TOP2000.DAT
+          copy ${{ github.workspace }}\SRC\DB\BIN\TOP2000.DAT TOP2000.DAT
 
       - name: Compress
         run: |
@@ -79,8 +78,8 @@ jobs:
           type ${{github.workspace}}\OUTPUT.TXT
            .\DOSBox.exe -c "mount C ${{ github.workspace }}" -c "C:" -c "C:\VBDOS\COMPRESS.EXE -r C:\SRC\TOP2000\TOP2000.ICO C:\PUBLISH\DISK > OUTPUT.TXT" -c "EXIT" -noconsole -noautoexec | Out-Null
           type ${{github.workspace}}\OUTPUT.TXT
-         #   .\DOSBox.exe -c "mount C ${{ github.workspace }}" -c "C:" -c "C:\VBDOS\COMPRESS.EXE -r C:\SRC\DB\BIN\TOP2000.DAT C:\PUBLISH\DISK > OUTPUT.TXT" -c "EXIT" -noconsole -noautoexec | Out-Null
-         # type ${{github.workspace}}\OUTPUT.TXT
+          .\DOSBox.exe -c "mount C ${{ github.workspace }}" -c "C:" -c "C:\VBDOS\COMPRESS.EXE -r C:\SRC\DB\BIN\TOP2000.DAT C:\PUBLISH\DISK > OUTPUT.TXT" -c "EXIT" -noconsole -noautoexec | Out-Null
+          type ${{github.workspace}}\OUTPUT.TXT
 
       - name: Create Raw artifact
         run: |
@@ -89,7 +88,7 @@ jobs:
           cd RAW
           copy ${{ github.workspace }}\SRC\TOP2000\BIN\TOP2000.EXE TOP2000.EXE
           copy ${{ github.workspace }}\SRC\TOP2000\TOP2000.ICO TOP2000.ICO
-      #    copy ${{ github.workspace }}\SRC\DB\BIN\TOP2000.DAT TOP2000.DAT
+          copy ${{ github.workspace }}\SRC\DB\BIN\TOP2000.DAT TOP2000.DAT
 
       - name: Compress artifacts for site deploy
         run: |
@@ -98,7 +97,6 @@ jobs:
           Compress-Archive -Path ${{github.workspace}}\Publish\DISK\* -DestinationPath ${{github.workspace}}\SRC\WEB\BIN\releases\top2000-disk.zip
           Compress-Archive -Path ${{github.workspace}}\Publish\RAW\* -DestinationPath ${{github.workspace}}\SRC\WEB\BIN\releases\top2000.zip
           Compress-Archive -Path ${{github.workspace}}\Publish\jsdos\* -DestinationPath ${{github.workspace}}\SRC\WEB\BIN\top2000.jsdos
-        # Compress-Archive -Path ${{github.workspace}}\SRC\WEB\BIN\* -DestinationPath ${{github.workspace}}\site.gzip
 
       - name: copy site
         run: |
