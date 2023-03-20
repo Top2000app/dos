@@ -20,8 +20,8 @@ jobs:
       - name: Setup .NET Core SDK
         if: ${{ false }}
         uses: actions/setup-dotnet@v3.0.3
-        
       - name: Download TOP2000 database
+        if: ${{ false }}
         run: | 
           cd SRC\DOWNLOAD
           dotnet run .\DownloaderApp.csproj
@@ -55,6 +55,12 @@ jobs:
         run: |
           cd "SRC\WEB"
           .\build.ps1
+
+      - name: Create js-dos artifact
+        run: |
+          cd ${{ github.workspace }}\Publish\jsdos
+          copy ${{ github.workspace }}\SRC\TOP2000\BIN\TOP2000.EXE TOP2000.EXE
+        # copy ${{ github.workspace }}\SRC\DB\BIN\TOP2000.DAT TOP2000.DAT
 
       - name: Create App artifact
         run: |
@@ -91,6 +97,7 @@ jobs:
           Compress-Archive -Path ${{github.workspace}}\Publish\APP\* -DestinationPath ${{github.workspace}}\SRC\WEB\BIN\releases\top2000-dosbox.zip
           Compress-Archive -Path ${{github.workspace}}\Publish\DISK\* -DestinationPath ${{github.workspace}}\SRC\WEB\BIN\releases\top2000-disk.zip
           Compress-Archive -Path ${{github.workspace}}\Publish\RAW\* -DestinationPath ${{github.workspace}}\SRC\WEB\BIN\releases\top2000.zip
+          Compress-Archive -Path ${{github.workspace}}\Publish\jsdos\* -DestinationPath ${{github.workspace}}\SRC\WEB\BIN\top2000.jsdos
         # Compress-Archive -Path ${{github.workspace}}\SRC\WEB\BIN\* -DestinationPath ${{github.workspace}}\site.gzip
 
       - name: copy site

@@ -36,3 +36,8 @@ $content = Get-Content -Path "BIN\nl\index.html" -Raw
 # replace all ../ in the index.html
 $newContent = $content -replace "\.\.\/", ""
 New-item "bin\index.html" -Value $newContent -Force
+
+# create the online experience
+mkdir -PATH "bin\js-dos"  -Force
+Copy-Item "js-dos\*" -Destination "bin\js-dos\"
+Copy-Item "online.html" -Destination "bin\online.html" -Force
