@@ -54,7 +54,7 @@ SUB OnExit ()
     frmMain.HIDE
     CLS
     PRINT "Bedankt voor het gebruik van TOP 2000 voor MS-DOS"
-    PRINT "Bekijk de code op https://github.com/rneeft/Top2000-MSDOS"
+    PRINT "Bekijk de code op https://github.com/top2000app/dos/"
     PRINT ""
     PRINT "Rick"
     END
