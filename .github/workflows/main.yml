@@ -1,5 +1,5 @@
 name: Build TOP2000 for MS-DOS
-on: push
+on: [push,workflow_dispatch]
 
 permissions:
   contents: read
