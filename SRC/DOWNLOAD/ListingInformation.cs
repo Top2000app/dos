@@ -11,7 +11,10 @@
         get
         {
             if (PlayUtcDateAndTime is null) return null;
-            return DateTime.SpecifyKind((DateTime)PlayUtcDateAndTime, DateTimeKind.Utc).ToLocalTime();
+            var utcTime = DateTime.SpecifyKind((DateTime)PlayUtcDateAndTime, DateTimeKind.Utc);
+
+            // we can make this shortcut since I only show the CES Time in the MS-DOS app.
+            return utcTime.AddHours(1);
         }
     }
 
